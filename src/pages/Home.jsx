@@ -1,28 +1,110 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useProductStore } from "../stores/useProductStore";
+import { useCartStore } from "../stores/useCartStore";
+import Pagination from "../components/Pagination";
+import ProductModal from "../components/ProductModal";
 
 const Home = () => {
   const { products, fetchAllProducts, isLoading } = useProductStore();
+  const [category, setCategory] = useState("all");
+  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 8;
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     fetchAllProducts();
   }, []);
 
+  const { addToCart } = useCartStore();
+
+  // Filter products by category and price
+  const filteredProducts = products.filter((product) => {
+    const matchCategory =
+      category === "all" || product.category.toLowerCase() === category;
+    const matchPrice =
+      product.price >= priceRange[0] && product.price <= priceRange[1];
+    return matchCategory && matchPrice;
+  });
+
+  // pagination
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const paginatedProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + productsPerPage
+  );
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setIsOpen(true);
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Products</h1>
+      <div className="flex gap-4 flex-wrap mb-6">
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="border p-2 rounded"
+        >
+          <option value="all">All categories</option>
+          <option value="clothes">Clothes</option>
+          <option value="footwear">Footwear</option>
+          <option value="accessories">Accessories</option>
+        </select>
+
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={priceRange[1]}
+          onChange={(e) => setPriceRange([0, Number(e.target.value)])}
+        />
+        <span>Máx: ${priceRange[1]}</span>
+      </div>
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {products?.map((product) => (
-            <div key={product.id} className="p-4 border rounded shadow">
-              <h2 className="text-xl font-semibold ">{product.name}</h2>
-              <p className="text-gray-700">${product.price}</p>
-              <p className="text-sm text-gray-500">In Stock: {product.stock}</p>
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {paginatedProducts.map((product) => (
+              <div
+                key={product.id}
+                className="p-4 border rounded shadow"
+                onClick={() => handleProductClick(product)}
+              >
+                <h2 className="text-xl font-semibold ">{product.name}</h2>
+                <p className="text-gray-700">${product.price}</p>
+                <p className="text-sm text-gray-500">
+                  In Stock: {product.stock}
+                </p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(product);
+                  }}
+                  className="mt-2 w-full bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            ))}
+          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+          <ProductModal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            product={selectedProduct}
+            onAddToCart={addToCart}
+          />
+        </>
       )}
     </div>
   );
