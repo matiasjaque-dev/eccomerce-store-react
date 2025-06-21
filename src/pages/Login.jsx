@@ -1,21 +1,26 @@
 import React, { useState } from "react";
 import useAuthStore from "../stores/useAuthStore";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
   const { login, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const loadingToast = toast.loading("Logging in...");
+
     try {
       await login(email, password);
+      toast.success("Login successful!");
       navigate("/");
     } catch (error) {
-      setError(error.message);
+      toast.error(error.message || "Login failed");
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 
@@ -49,7 +54,6 @@ const Login = () => {
         >
           {isLoading ? "Logging in..." : "Login"}
         </button>
-        {error && <p className="mt-2 text-red-500">{error}</p>}
       </form>
     </div>
   );

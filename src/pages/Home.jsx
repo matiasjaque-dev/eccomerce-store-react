@@ -3,6 +3,7 @@ import { useProductStore } from "../stores/useProductStore";
 import { useCartStore } from "../stores/useCartStore";
 import Pagination from "../components/Pagination";
 import ProductModal from "../components/ProductModal";
+import toast from "react-hot-toast";
 
 const Home = () => {
   const { products, fetchAllProducts, isLoading } = useProductStore();
@@ -14,7 +15,15 @@ const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    fetchAllProducts();
+    const load = async () => {
+      try {
+        await fetchAllProducts();
+      } catch (error) {
+        toast.error("Failed to load products");
+        console.error(error);
+      }
+    };
+    load();
   }, []);
 
   const { addToCart } = useCartStore();
@@ -66,7 +75,7 @@ const Home = () => {
         <span>Máx: ${priceRange[1]}</span>
       </div>
       {isLoading ? (
-        <p>Loading...</p>
+        <p>Loading products...</p>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -85,6 +94,7 @@ const Home = () => {
                   onClick={(e) => {
                     e.stopPropagation();
                     addToCart(product);
+                    toast.success(`${product.name} added to cart`);
                   }}
                   className="mt-2 w-full bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
                 >

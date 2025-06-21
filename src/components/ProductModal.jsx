@@ -1,12 +1,22 @@
 import { Dialog, Transition, TransitionChild } from "@headlessui/react";
 import React, { Fragment, useState } from "react";
+import toast from "react-hot-toast";
 
 const ProductModal = ({ isOpen, product, onAddToCart, onClose }) => {
   const [quantity, setQuantity] = useState(1);
 
-  const handleAddToCart = () => {
-    onAddToCart({ ...product, quantity });
-    onClose();
+  const handleAddToCart = async () => {
+    const loadingToast = toast.loading("Adding to cart...");
+    try {
+      await onAddToCart({ ...product, quantity });
+      toast.success(`${product.name} added to cart`);
+      onClose();
+    } catch (error) {
+      toast.error("Failed to add product to cart");
+      console.error(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
   };
 
   if (!product) return null;

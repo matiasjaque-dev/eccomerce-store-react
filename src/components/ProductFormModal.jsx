@@ -6,6 +6,7 @@ import {
 } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
 import { useProductStore } from "../stores/useProductStore";
+import toast from "react-hot-toast";
 
 const ProductFormModal = ({ isOpen, onClose, product, isEditing }) => {
   const { addProduct, updateProduct } = useProductStore();
@@ -32,8 +33,10 @@ const ProductFormModal = ({ isOpen, onClose, product, isEditing }) => {
   const handleSubmit = () => {
     if (isEditing) {
       updateProduct(form.id, form);
+      toast.success("Product updated successfully");
     } else {
       addProduct(form);
+      toast.success("Product created successfully");
     }
     onClose();
   };
