@@ -62,3 +62,26 @@ src/
 ├── services/ # Funciones para llamadas externas
 ├── App.jsx # Enrutamiento principal
 └── main.jsx # Punto de entrada
+
+---
+
+## 📦 Cómo Ejecutar Localmente
+
+1. Clonar el repositorio:
+
+```bash
+git clone https://github.com/matiasjaque-dev/eccomerce-store-react.git
+cd eccomerce-store-react
+Instalar dependencias:
+
+npm install
+
+Iniciar en modo desarrollo:
+
+npm run dev
+
+📬 Contacto
+Desarrollado por Matías Jaque Montecinos
+📧 Email: matias.jaque.dev@gmail.com
+💼 LinkedIn: linkedin.com/in/tuusuario
+```
