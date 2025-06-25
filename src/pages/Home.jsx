@@ -4,9 +4,12 @@ import { useCartStore } from "../stores/useCartStore";
 import Pagination from "../components/Pagination";
 import ProductModal from "../components/ProductModal";
 import toast from "react-hot-toast";
+import { getAvailableStock } from "../helpers/stockUtils";
 
 const Home = () => {
   const { products, fetchAllProducts, isLoading } = useProductStore();
+  const { cart } = useCartStore();
+
   const [category, setCategory] = useState("all");
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,14 +85,12 @@ const Home = () => {
             {paginatedProducts.map((product) => (
               <div
                 key={product.id}
-                className="p-4 border rounded shadow"
+                className="p-4 border rounded shadow cursor-pointer"
                 onClick={() => handleProductClick(product)}
               >
                 <h2 className="text-xl font-semibold ">{product.name}</h2>
                 <p className="text-gray-700">${product.price}</p>
-                <p className="text-sm text-gray-500">
-                  In Stock: {product.stock}
-                </p>
+                In Stock: {getAvailableStock(product.id, product.stock, cart)}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

@@ -12,7 +12,6 @@ const collectionRef = collection(db, "products");
 
 export const fetchProducts = async () => {
   const snapshot = await getDocs(collectionRef);
-  console.log(snapshot.docs.map((doc) => doc.data()));
 
   return snapshot.docs.map((doc) => ({
     id: doc.id,

@@ -1,9 +1,23 @@
 import { Dialog, Transition, TransitionChild } from "@headlessui/react";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { getAvailableStock } from "../helpers/stockUtils";
+import { useCartStore } from "../stores/useCartStore";
 
 const ProductModal = ({ isOpen, product, onAddToCart, onClose }) => {
   const [quantity, setQuantity] = useState(1);
+
+  const { cart } = useCartStore();
+
+  const availableStock = product
+    ? getAvailableStock(product.id, product.stock, cart)
+    : 0;
+
+  useEffect(() => {
+    if (product) {
+      setQuantity(1);
+    }
+  }, [product]);
 
   const handleAddToCart = async () => {
     const loadingToast = toast.loading("Adding to cart...");
@@ -51,28 +65,55 @@ const ProductModal = ({ isOpen, product, onAddToCart, onClose }) => {
               </Dialog.Title>
               <p className="text-gray-600">Category: {product.category}</p>
               <p className="text-gray-600">Price: ${product.price}</p>
-              <p className="text-gray-600 mb-4">Stock: {product.stock}</p>
+              <p className="text-gray-600 mb-4">Available: {availableStock}</p>
 
               <label className="block mb-2 font-medium">Quantity</label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                min={1}
-                max={product.stock}
-                className="w-full border rounded-md p-2 mb-4"
-              />
+              <div className="flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="px-3 py-1 border rounded text-lg font-bold hover:bg-gray-100"
+                >
+                  −
+                </button>
+                <input
+                  type="text"
+                  value={quantity}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      const numeric = Number(value);
+                      if (numeric >= 1 && numeric <= product.stock) {
+                        setQuantity(numeric);
+                      } else if (value === "") {
+                        setQuantity("");
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (!quantity || quantity < 1) setQuantity(1);
+                  }}
+                  className="w-16 text-center border rounded p-2"
+                />
+                <button
+                  onClick={() =>
+                    setQuantity((q) => Math.min(product.stock, q + 1))
+                  }
+                  className="px-3 py-1 border rounded text-lg font-bold hover:bg-gray-100"
+                >
+                  +
+                </button>
+              </div>
 
               <div className="flex justify-end gap-2">
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 text-sm text-gray-600 border rounded hover:bg-gray-100"
+                  className="px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-700 border rounded font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAddToCart}
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
                 >
                   Add to cart
                 </button>
