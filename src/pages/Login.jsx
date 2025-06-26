@@ -14,7 +14,12 @@ const Login = () => {
     const loadingToast = toast.loading("Logging in...");
 
     try {
-      await login(email, password);
+      const resp = await login(email, password);
+      if (!resp) {
+        toast.error("Invalid credentials");
+        return; // <- Evita redirigir al home
+      }
+
       toast.success("Login successful!");
       navigate("/");
     } catch (error) {

@@ -13,7 +13,10 @@ const useAuthStore = create(
         try {
           const user = await login(email, password);
 
+          if (!user) throw new Error("Invalid credentials");
+
           set({ user, role: user.role });
+          return user;
         } catch (error) {
           console.error("Error al iniciar sesión:", error.message);
         } finally {
