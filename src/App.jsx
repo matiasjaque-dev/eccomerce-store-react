@@ -5,7 +5,6 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Layout from "./components/Layout";
 import Cart from "./components/Cart";
-import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 function App() {
@@ -21,10 +20,7 @@ function App() {
         {
           path: "admin",
           element: <ProtectedRoute allowedRoles={["admin"]} />,
-          children: [
-            { index: true, element: <Admin /> },
-            { path: "dashboard", element: <AdminDashboard /> },
-          ],
+          children: [{ path: "dashboard", element: <AdminDashboard /> }],
         },
         { path: "*", element: <NotFound /> },
       ],

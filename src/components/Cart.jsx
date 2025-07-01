@@ -1,7 +1,20 @@
+import { useState } from "react";
 import { useCartStore } from "../stores/useCartStore";
+import toast from "react-hot-toast";
+import QuantityConfirmModal from "./common/QuantityConfirmModal";
 
 const Cart = () => {
   const { cart, removeFromCart, getTotal, clearCart } = useCartStore();
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleRemove = (item) => {
+    if (item.quantity === 1) {
+      removeFromCart(item.id);
+      toast.success(`${item.name} removed from cart`);
+    } else {
+      setSelectedItem(item);
+    }
+  };
 
   if (cart.length === 0)
     return <p className="text-center py-4">Your cart is empty.</p>;
@@ -18,8 +31,8 @@ const Cart = () => {
             <p className="text-sm text-gray-500">${item.price} each</p>
           </div>
           <button
-            onClick={() => removeFromCart(item.id)}
-            className="text-red-600"
+            onClick={() => handleRemove(item)}
+            className="text-sm text-red-600 hover:text-red-700 underline transition"
           >
             Remove
           </button>
@@ -28,10 +41,25 @@ const Cart = () => {
       <div className="mt-4 font-semibold">Total: ${getTotal().toFixed(2)}</div>
       <button
         onClick={clearCart}
-        className="mt-2 bg-red-500 text-white py-1 px-4 rounded"
+        className="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition"
       >
         Clear Cart
       </button>
+
+      {selectedItem && (
+        <QuantityConfirmModal
+          isOpen={!!selectedItem}
+          onClose={() => setSelectedItem(null)}
+          maxQuantity={selectedItem.quantity}
+          itemName={selectedItem.name}
+          onConfirm={(quantityToRemove) => {
+            removeFromCart(selectedItem.id, quantityToRemove);
+            toast.success(
+              `${quantityToRemove} ${selectedItem.name} removed from cart`
+            );
+          }}
+        />
+      )}
     </div>
   );
 };

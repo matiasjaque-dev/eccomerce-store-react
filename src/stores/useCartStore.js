@@ -15,12 +15,21 @@ export const useCartStore = create((set, get) => ({
         ),
       });
     } else {
-      set({ cart: [...get().cart, { ...product, quantity: 1 }] });
+      set({ cart: [...get().cart, { ...product, quantity: quantityToAdd }] });
     }
   },
 
-  removeFromCart: (id) => {
-    set({ cart: get().cart.filter((item) => item.id !== id) });
+  removeFromCart: (id, quantityToRemove = 1) => {
+    set({
+      cart: get().cart.flatMap((item) => {
+        if (item.id !== id) return [item];
+        const newQuantity = item.quantity - quantityToRemove;
+        if (newQuantity > 0) {
+          return [{ ...item, quantity: newQuantity }];
+        }
+        return []; // elimina el producto si llega a 0
+      }),
+    });
   },
 
   clearCart: () => set({ cart: [] }),
