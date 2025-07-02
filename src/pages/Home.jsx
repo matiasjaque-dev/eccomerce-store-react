@@ -92,10 +92,12 @@ const Home = () => {
                 <p className="text-gray-700">${product.price}</p>
                 In Stock: {getAvailableStock(product.id, product.stock, cart)}
                 <button
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
-                    addToCart(product);
-                    toast.success(`${product.name} added to cart`);
+                    const resp = await addToCart(product);
+                    if (resp) {
+                      toast.success(`${product.name} added to cart`);
+                    }
                   }}
                   className="mt-2 w-full bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700"
                 >

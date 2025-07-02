@@ -22,9 +22,12 @@ const ProductModal = ({ isOpen, product, onAddToCart, onClose }) => {
   const handleAddToCart = async () => {
     const loadingToast = toast.loading("Adding to cart...");
     try {
-      await onAddToCart({ ...product, quantity });
-      toast.success(`${product.name} added to cart`);
+      const resp = await onAddToCart({ ...product, quantity });
+      if (resp) {
+        toast.success(`${product.name} added to cart`);
+      }
       onClose();
+      setQuantity(1);
     } catch (error) {
       toast.error("Failed to add product to cart");
       console.error(error);
