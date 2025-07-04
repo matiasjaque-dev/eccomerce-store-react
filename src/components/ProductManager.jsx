@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useProductStore } from "../stores/useProductStore";
 import ProductFormModal from "./ProductFormModal";
 import toast from "react-hot-toast";
+import ConfirmDialog from "./common/ConfirmDialog";
 
 const ProductManager = () => {
   const { products, fetchAllProducts, deleteProduct, isLoading } =
@@ -9,6 +10,8 @@ const ProductManager = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   useEffect(() => {
     fetchAllProducts();
@@ -27,10 +30,13 @@ const ProductManager = () => {
   };
 
   const handleDelete = (productId) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      deleteProduct(productId);
-      toast.success("Product deleted successfully");
-    }
+    setProductToDelete(productId);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    deleteProduct(productToDelete);
+    toast.success("Product deleted successfully");
   };
 
   return (
@@ -91,6 +97,13 @@ const ProductManager = () => {
         onClose={() => setIsModalOpen(false)}
         product={selectedProduct}
         isEditing={isEditing}
+      />
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
       />
     </div>
   );
